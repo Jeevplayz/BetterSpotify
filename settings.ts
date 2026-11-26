@@ -119,7 +119,7 @@ export const settings = definePluginSettings({
         displayName: "Lyrics Preview Font Size",
         description: "Font size in pixels for the current and upcoming lyrics below the mini-player.",
         markers: [10, 12, 14, 16, 18],
-        default: 14,
+        default: 12,
         stickToMarkers: true,
         hidden: true
     },
@@ -132,7 +132,20 @@ export const settings = definePluginSettings({
         stickToMarkers: true,
         hidden: true
     },
-
+    lyricsPreviewEnglishLineHeight: {
+        type: OptionType.NUMBER,
+        displayName: "English Lyrics Line Height",
+        description: "Line height for English lyrics (0–5; decimals allowed).",
+        default: 1,
+        hidden: true
+    },
+    lyricsPreviewHindiLineHeight: {
+        type: OptionType.NUMBER,
+        displayName: "Hindi Lyrics Line Height",
+        description: "Line height for Hindi lyrics (0–5; decimals allowed).",
+        default: 1.5,
+        hidden: true
+    },
     lyricsTextColor: {
         type: OptionType.STRING,
         displayName: "Lyrics Text Color",

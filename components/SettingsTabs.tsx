@@ -35,6 +35,28 @@ function TextOption({ id, name, description, value, placeholder, onChange }: { i
     return <SettingsSection id={id} name={name} description={description}><TextInput type="text" value={value} placeholder={placeholder ?? "Enter a value"} maxLength={null} onChange={onChange} /></SettingsSection>;
 }
 
+function NumberOption({ id, name, description, value, onChange }: { id: string; name: string; description: string; value: number; onChange(value: number): void; }) {
+    const [draft, setDraft] = useState(String(value));
+    const [error, setError] = useState<string | null>(null);
+    useEffect(() => setDraft(String(value)), [value]);
+    return (
+        <SettingsSection id={id} name={name} description={description} error={error}>
+            <TextInput type="number" value={draft} placeholder="1" maxLength={null} min={0} max={5} step={0.1}
+                onChange={next => {
+                    setDraft(next);
+                    if (next === "") return;
+                    const parsed = Number(next);
+                    if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 5) {
+                        setError(null);
+                        onChange(parsed);
+                    } else setError("Enter a line height from 0 to 5. Decimals are allowed.");
+                }}
+                onBlur={() => setDraft(String(value))}
+            />
+        </SettingsSection>
+    );
+}
+
 function ColorOption({ id, name, description, value, placeholder, isValid, onChange }: { id: string; name: string; description: string; value: string; placeholder: string; isValid(value: string): boolean; onChange(value: string): void; }) {
     const [draft, setDraft] = useState(value);
     const [error, setError] = useState<string | null>(null);
@@ -66,7 +88,7 @@ function SliderOption({ id, name, description, value, markers, unit, onChange }:
 export function SettingsTabs() {
     const values = settings.use([
         "spotifyClientId", "useSpotifyUris", "previousButtonRestartsTrack", "showSeekBar", "autoplayFallback",
-        "showLyricsPreview", "lyricsPreviewFontSize", "lyricsPreviewLineCount", "lyricsTextColor", "lyricsGlowColor", "menuAccentColor",
+        "showLyricsPreview", "lyricsPreviewFontSize", "lyricsPreviewLineCount", "lyricsPreviewEnglishLineHeight", "lyricsPreviewHindiLineHeight", "lyricsTextColor", "lyricsGlowColor", "menuAccentColor",
         "fontFamily", "fontSize", "albumSize", "menuIconSize", "accentColor", "backgroundColor"
     ]);
     const [tab, setTab] = useState<Tab>("general");
@@ -93,6 +115,8 @@ export function SettingsTabs() {
                     <Toggle id="showLyricsPreview" name="Show Lyrics Preview" description="Show the current and upcoming synced lyric below the mini-player." value={values.showLyricsPreview} onChange={value => set("showLyricsPreview", value)} />
                     <SliderOption id="lyricsPreviewFontSize" name="Lyrics Preview Font Size" description="Font size in pixels for the lyrics below the mini-player." value={values.lyricsPreviewFontSize} markers={[10, 12, 14, 16, 18]} unit="px" onChange={value => set("lyricsPreviewFontSize", value)} />
                     <SliderOption id="lyricsPreviewLineCount" name="Lyrics Preview Lines" description="Number of lyric lines shown around the current line (1–10)." value={values.lyricsPreviewLineCount} markers={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} onChange={value => set("lyricsPreviewLineCount", value)} />
+                    <NumberOption id="lyricsPreviewEnglishLineHeight" name="English Lyrics Line Height" description="Line height for English lyrics (0–5; decimals allowed)." value={values.lyricsPreviewEnglishLineHeight} onChange={value => set("lyricsPreviewEnglishLineHeight", value)} />
+                    <NumberOption id="lyricsPreviewHindiLineHeight" name="Hindi Lyrics Line Height" description="Line height for Hindi lyrics (0–5; decimals allowed)." value={values.lyricsPreviewHindiLineHeight} onChange={value => set("lyricsPreviewHindiLineHeight", value)} />
                     <ColorOption id="lyricsTextColor" name="Lyrics Text Color" description="Lyrics text color in the Spotify menu and mini-player preview." value={values.lyricsTextColor} placeholder="Default: BetterSpotify theme text color" isValid={validOptionalHex} onChange={value => set("lyricsTextColor", value)} />
                     <ColorOption id="lyricsGlowColor" name="Lyrics Glow Color" description="Highlight color for the currently playing lyric." value={values.lyricsGlowColor} placeholder="Default: Discord theme highlight color" isValid={validOptionalHex} onChange={value => set("lyricsGlowColor", value)} />
                 </>}

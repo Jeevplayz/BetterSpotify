@@ -13,10 +13,13 @@ import { settings } from "../settings";
 import { LyricsLineText } from "./LyricsLineText";
 
 const cl = classNameFactory("vc-spotify-");
+const hasHindiText = (text: string) => /[\u0900-\u097f]/.test(text);
 
 export function LyricsPreview({ track }: { track: Track; }) {
     const isPlaying = useStateFromStores([SpotifyStore], () => SpotifyStore.isPlaying);
-    const { lyricsPreviewLineCount } = settings.use(["lyricsPreviewLineCount"]);
+    const { lyricsPreviewLineCount, lyricsPreviewEnglishLineHeight, lyricsPreviewHindiLineHeight } = settings.use([
+        "lyricsPreviewLineCount", "lyricsPreviewEnglishLineHeight", "lyricsPreviewHindiLineHeight"
+    ]);
     const [lyrics, setLyrics] = useState<LyricsResult | null>(null);
     const [position, setPosition] = useState(SpotifyStore.position ?? 0);
     const hasWordSync = Boolean(lyrics?.synced?.some(line => line.words?.length));
@@ -57,7 +60,7 @@ export function LyricsPreview({ track }: { track: Track; }) {
                 }}
             >
                 {plainLines.map((line, index) => (
-                    <div key={index} className={cl("lyrics-preview-plain-line")}>{line || "\u00a0"}</div>
+                    <div key={index} className={cl("lyrics-preview-plain-line")} style={{ lineHeight: hasHindiText(line) ? lyricsPreviewHindiLineHeight : lyricsPreviewEnglishLineHeight }}>{line || "\u00a0"}</div>
                 ))}
             </div>
         );
@@ -86,9 +89,9 @@ export function LyricsPreview({ track }: { track: Track; }) {
                 const className = isCurrent
                     ? classes(cl("lyrics-preview-current"), line.words?.length ? "is-word-synced" : "is-line-synced")
                     : lineIndex < displayCurrentIndex ? cl("lyrics-preview-previous") : cl("lyrics-preview-upcoming");
-
+                const lineHeight = hasHindiText(line.text) ? lyricsPreviewHindiLineHeight : lyricsPreviewEnglishLineHeight;
                 return (
-                    <div key={`${line.time}-${lineIndex}`} className={className}>
+                    <div key={`${line.time}-${lineIndex}`} className={className} style={{ lineHeight, maxHeight: isCurrent ? `${lineHeight * 6}em` : `${lineHeight}em` }}>
                         <LyricsLineText line={line} position={position} highlightWord={isCurrent} />
                     </div>
                 );
