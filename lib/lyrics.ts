@@ -230,15 +230,18 @@ async function fetchLyricsUncached(track: LookupTrack): Promise<LyricsResult> {
     if (!track?.name || !track.artists?.length) return EMPTY_RESULT;
 
     let syncedFallback: LyricsResult | null = null;
+    let plainFallback: LyricsResult | null = null;
     for (const artist of track.artists) {
         const exact = await getExactFor(track, artist.name);
         if (hasWordSync(exact)) return exact!;
         if (exact?.synced?.length && !syncedFallback) syncedFallback = exact;
+        if (exact?.plain && !plainFallback) plainFallback = exact;
     }
 
     const searched = await searchClosest(track);
     if (hasWordSync(searched)) return searched!;
     if (searched?.synced?.length && !syncedFallback) syncedFallback = searched;
+    if (searched?.plain && !plainFallback) plainFallback = searched;
 
     // The Python helper requests enhanced LRC first and falls back to regular
     // synced LRC. Prefer its word-level result over LRCLIB's line-level result.
@@ -247,7 +250,7 @@ async function fetchLyricsUncached(track: LookupTrack): Promise<LyricsResult> {
 
     // Use line-synced lyrics only after both sources have had a chance to find
     // word-level timing. Prefer LRCLIB's line sync over syncedlyrics' line sync.
-    return syncedFallback ?? alternative ?? EMPTY_RESULT;
+    return syncedFallback ?? alternative ?? plainFallback ?? EMPTY_RESULT;
 }
 
 /** Shares in-flight lookups between the mini-player and lyrics tab, then briefly reuses the result. */

@@ -113,6 +113,53 @@
   opacity: 0.7;
 }
 
+.vc-spotify-lyrics-preview-plain {
+  display: block;
+  max-height: 120px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: center;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thin-thumb, color-mix(in srgb, var(--text-normal) 24%, transparent)) var(--scrollbar-thin-track, transparent);
+}
+
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar {
+  width: 8px;
+}
+
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: var(--scrollbar-thin-thumb, color-mix(in srgb, var(--text-normal) 24%, transparent));
+}
+
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-track {
+  background: var(--scrollbar-thin-track, transparent);
+}
+
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-button:single-button,
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-button:vertical:decrement,
+.vc-spotify-lyrics-preview-plain::-webkit-scrollbar-button:vertical:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.vc-spotify-lyrics-preview-plain-line {
+  width: 100%;
+  color: var(--vc-spotify-lyrics-text-color, var(--vc-spotify-fg, #fff));
+  font-size: var(--vc-spotify-lyrics-font-size, 14px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 /* Album */
 .vc-spotify-album-wrapper {
   flex: 0 0 auto;

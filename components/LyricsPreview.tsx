@@ -41,7 +41,27 @@ export function LyricsPreview({ track }: { track: Track; }) {
     }, [track.id, isPlaying, hasWordSync]);
 
     const lines = lyrics?.synced;
-    if (!lines?.length) return null;
+    if (!lines?.length) {
+        const plainLines = lyrics?.plain?.split(/\r?\n/);
+        if (!plainLines?.length) return null;
+
+        return (
+            <div
+                className={classes(cl("lyrics-preview"), cl("lyrics-preview-plain"))}
+                aria-label="Unsynced lyrics"
+                onWheel={event => {
+                    const element = event.currentTarget;
+                    const canScrollUp = element.scrollTop > 0 && event.deltaY < 0;
+                    const canScrollDown = element.scrollTop + element.clientHeight < element.scrollHeight && event.deltaY > 0;
+                    if (canScrollUp || canScrollDown) event.stopPropagation();
+                }}
+            >
+                {plainLines.map((line, index) => (
+                    <div key={index} className={cl("lyrics-preview-plain-line")}>{line || "\u00a0"}</div>
+                ))}
+            </div>
+        );
+    }
 
     let currentIndex = -1;
     for (let i = 0; i < lines.length; i++) {
