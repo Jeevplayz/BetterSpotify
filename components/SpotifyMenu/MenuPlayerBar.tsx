@@ -94,8 +94,14 @@ function SpotifyDeviceMenu() {
         void SpotifyStore.refreshDevices().catch(error => console.error("[BetterSpotify] Failed to load devices:", error));
     }, []);
 
+    // The device list usually grows right after the menu opens (the store only knows the active
+    // device at first, then refreshDevices() adds the rest). Keying on the ids remounts the menu
+    // when that happens so Discord re-measures it instead of keeping the shorter first-render box.
+    const deviceKey = devices.map(device => device.id).join("|") || "none";
+
     return (
         <Menu.Menu
+            key={deviceKey}
             navId="spotify-connect-devices"
             onClose={ContextMenuApi.closeContextMenu}
             aria-label="Connect to a device"

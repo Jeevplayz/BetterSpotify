@@ -1734,16 +1734,35 @@
   flex: 0 0 auto;
 }
 
-.vc-spotify-device-menu {
+/* Device picker. The surface must grow with its rows: the list changes length right after the
+   menu opens, and a box that keeps its first-render height leaves the last row hanging off the
+   bottom, drawn straight onto the page. Same surface as the Spotify modal so the two match. */
+.vc-spotify-device-menu,
+[role="menu"].vc-spotify-device-menu,
+[role="menu"]:has(.vc-spotify-device-menu) {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
   color: var(--text-normal);
-  background: var(--background-secondary) !important;
-  background-color: var(--background-secondary) !important;
+  background-color: var(--background-base-lower, var(--background-secondary, #2b2d31)) !important;
   background-image: none !important;
-  opacity: 1;
-  backdrop-filter: none;
+  opacity: 1 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
   border: 1px solid color-mix(in srgb, var(--text-normal) 14%, transparent);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 32%);
+}
+
+/* Keep the device list opaque and in sync with Discord's current theme. */
+.vc-spotify-device-menu > [class*="scroller"] {
+  height: auto !important;
+  max-height: none !important;
+  background-color: var(--background-base-lower, var(--background-secondary, #2b2d31)) !important;
+  background-image: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 32%) !important;
 }
 
 .vc-spotify-device-button {
