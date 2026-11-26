@@ -4,7 +4,7 @@
  */
 
 import { classes } from "@utils/misc";
-import { React, TextInput, useState } from "@webpack/common";
+import { React, TextInput, useState, useStateFromStores } from "@webpack/common";
 
 import { SearchTrack, SimplePlaylist, SpotifyArtist, SpotifyStore } from "../../SpotifyStore";
 import { ArtistGrid, LoadingMessage, PlaylistGrid, StatusMessage, TrackRow } from "./rows";
@@ -82,6 +82,7 @@ function useSpotifySearch() {
 
 export function SearchTab({ onOpenPlaylist }: { onOpenPlaylist: (playlist: SimplePlaylist) => void; }) {
     const s = useSpotifySearch();
+    const recentlyPlayed = useStateFromStores([SpotifyStore], () => SpotifyStore.recentlyPlayed);
     const isEmpty = s.results.tracks.length === 0 && s.results.playlists.length === 0 && s.results.artists.length === 0;
 
     return (
@@ -122,7 +123,16 @@ export function SearchTab({ onOpenPlaylist }: { onOpenPlaylist: (playlist: Simpl
 
                 {s.error && <div className="vc-spotify-search-error">{s.error}</div>}
 
-                {!s.searched && !s.loading && <StatusMessage>Search for a song, artist or playlist</StatusMessage>}
+                {!s.query.trim() && !s.loading && !recentlyPlayed.length && <StatusMessage>Search for a song, artist or playlist</StatusMessage>}
+
+                {!s.query.trim() && !s.loading && recentlyPlayed.length > 0 && (
+                    <>
+                        <div className="vc-spotify-menu-section-title">Recently Played</div>
+                        {recentlyPlayed.map(track => <TrackRow key={track.id} track={track} />)}
+                    </>
+                )}
+
+                {s.query.trim() && !s.searched && !s.loading && <StatusMessage>Search for a song, artist or playlist</StatusMessage>}
 
                 {s.searched && !s.loading && !s.error && isEmpty && <StatusMessage>No results found.</StatusMessage>}
 

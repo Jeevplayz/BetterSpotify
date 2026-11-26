@@ -10,6 +10,7 @@
 
 import { isPluginEnabled } from "@api/PluginManager";
 import OpenInAppPlugin from "@plugins/openInApp";
+import { localStorage } from "@utils/localStorage";
 import { findByProps, findByPropsLazy, proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
 
@@ -96,6 +97,17 @@ export interface Device {
 }
 
 const SEARCH_STOP_WORDS = new Set(["a", "an", "and", "for", "from", "in", "of", "on", "the", "to", "with"]);
+const RECENTLY_PLAYED_KEY = "BetterSpotify_recentlyPlayed";
+const MAX_RECENTLY_PLAYED = 10;
+
+function readRecentlyPlayed(): SearchTrack[] {
+    try {
+        const value = JSON.parse(localStorage.getItem(RECENTLY_PLAYED_KEY) ?? "[]");
+        return Array.isArray(value) ? value.slice(0, MAX_RECENTLY_PLAYED) : [];
+    } catch {
+        return [];
+    }
+}
 
 function normalizeSearchText(value: string) {
     return value
@@ -150,6 +162,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
         public repeat: Repeat = "off";
         public shuffle = false;
         public volume = 0;
+        public recentlyPlayed: SearchTrack[] = readRecentlyPlayed();
 
         /** True while a seek request is in flight, to avoid the position snapping back before the new state arrives. */
         public isSettingPosition = false;
@@ -171,6 +184,30 @@ export const SpotifyStore = proxyLazyWebpack(() => {
 
         public getExternalUrl(path: string) {
             return "https://open.spotify.com" + path;
+        }
+
+        private recordRecentlyPlayed(track: Track | null) {
+            // Local files do not have a Spotify track URI, so they cannot be
+            // replayed or queued through the Spotify Web API.
+            if (!track?.id || !track.name || track.isLocal) return;
+
+            const recent: SearchTrack = {
+                id: track.id,
+                name: track.name,
+                uri: `spotify:track:${track.id}`,
+                artists: (track.artists ?? []).map(artist => ({ id: artist.id, name: artist.name })),
+                album: {
+                    id: track.album?.id ?? "",
+                    name: track.album?.name ?? "",
+                    images: track.album?.image?.url ? [track.album.image] : []
+                }
+            };
+            this.recentlyPlayed = [recent, ...this.recentlyPlayed.filter(item => item.id !== track.id)].slice(0, MAX_RECENTLY_PLAYED);
+            try {
+                localStorage.setItem(RECENTLY_PLAYED_KEY, JSON.stringify(this.recentlyPlayed));
+            } catch (error) {
+                console.warn("[BetterSpotify] Could not save recently played tracks:", error);
+            }
         }
 
         public get position(): number {
@@ -524,6 +561,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
             const prevPosition = store.position;
 
             store.track = e.track;
+            if (e.track?.id !== prevTrackId && e.isPlaying) store.recordRecentlyPlayed(e.track);
             // Some Spotify state updates omit `device` even while the current
             // playback device has not changed. Keep the last known device for
             // those partial updates so the mini-player does not disappear.
