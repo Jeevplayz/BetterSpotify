@@ -140,18 +140,14 @@ export const LIKED_SONGS_ID = "__liked_songs__";
 export const SpotifyStore = proxyLazyWebpack(() => {
     const { Store } = Flux;
 
-    // The socket Discord already holds open to Spotify (used for the classic
-    // "post"-less player state calls), and the wrapped fetch wrapper we patch
-    // a `post` method onto in index.tsx's ".PLAYER_DEVICES" patch.
+    // Discord's Spotify socket handles playback requests; our patch adds POST support.
     const SpotifySocket = findByProps("getActiveSocketAndDevice");
     const SpotifyAPI = findByPropsLazy("vcSpotifyMarker");
 
     const API_ROOT = "https://api.spotify.com/v1";
 
     class SpotifyStore extends Store {
-        // Position is tracked as a (base, timestamp) pair rather than a plain
-        // number so `position` can extrapolate smoothly between the periodic
-        // SPOTIFY_PLAYER_STATE updates instead of jumping once a second.
+        // Interpolate position between SPOTIFY_PLAYER_STATE updates.
         public mPosition = 0;
         public _start = 0;
 
@@ -526,12 +522,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
             return this._apiReq(method, "/me/player" + route, data);
         }
 
-        /**
-         * Called on every player-state update with the *previous* values. If those previous values show a track
-         * that was playing and had run to (near) its end, and the new state is now stopped on that same track,
-         * Spotify had nothing queued to continue with (its own Autoplay is off, or the context/queue was empty).
-         * If the user has the fallback setting on, grab a random track from Liked Songs instead of just stopping.
-         */
+        /** Starts a random Liked Song when playback ends with nothing queued, if fallback is enabled. */
         _maybeAutoplayFallback(prevTrackId: string | undefined, prevWasPlaying: boolean, prevDuration: number, prevPosition: number) {
             if (!settings.store.autoplayFallback) return;
             if (this._fallbackInFlight) return;
@@ -553,8 +544,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
 
     const store = new SpotifyStore(FluxDispatcher, {
         SPOTIFY_PLAYER_STATE(e: PlayerState) {
-            // Snapshot pre-update, so the fallback check below can tell a track that just
-            // ran to the end and stopped apart from one that's simply mid-playback.
+            // Keep the previous state to detect when a track ends without queued content.
             const prevTrackId = store.track?.id;
             const prevWasPlaying = store.isPlaying;
             const prevDuration = store.track?.duration ?? 0;
@@ -562,9 +552,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
 
             store.track = e.track;
             if (e.track?.id !== prevTrackId && e.isPlaying) store.recordRecentlyPlayed(e.track);
-            // Some Spotify state updates omit `device` even while the current
-            // playback device has not changed. Keep the last known device for
-            // those partial updates so the mini-player does not disappear.
+            // Keep the last known device when an update omits it.
             if (e.device !== undefined) store.device = e.device;
             if (e.device?.id) {
                 store.devices = [e.device, ...store.devices.filter(device => device.id !== e.device?.id)]

@@ -10,6 +10,7 @@ import { ContextMenuApi, Menu, React, useEffect, useState, useStateFromStores } 
 
 import { msToHuman } from "../../lib/format";
 import { SeekBar } from "../../SeekBar";
+import { settings } from "../../settings";
 import { SpotifyStore } from "../../SpotifyStore";
 import { Controls } from "../Controls";
 import { ConnectDeviceMobileIcon, RepeatIcon, RepeatOffIcon, RepeatOneIcon, ShuffleIcon, ShuffleOffIcon, VolumeHigh, VolumeLow, VolumeMuted } from "../icons";
@@ -178,6 +179,7 @@ function RepeatControl() {
  * behaviour but in a layout that fits a single footer row instead of the small player.
  */
 export function MenuPlayerBar() {
+    const menuIconSize = settings.use(["menuIconSize"]).menuIconSize;
     const track = useStateFromStores([SpotifyStore], () => SpotifyStore.track, null, isSameTrack);
     const device = useStateFromStores([SpotifyStore], () => SpotifyStore.device);
     const isPlaying = useStateFromStores([SpotifyStore], () => SpotifyStore.isPlaying);
@@ -201,7 +203,7 @@ export function MenuPlayerBar() {
     const artistNames = (track.artists ?? []).map((a: any) => a.name).join(", ");
 
     return (
-        <div className={cl("menu-player")}>
+        <div className={cl("menu-player")} style={{ "--vc-spotify-menu-icon-size": `${menuIconSize}px` } as React.CSSProperties}>
             <div className={cl("menu-player-main")}>
                 <div className={cl("menu-player-track")}>
                     {image ? (

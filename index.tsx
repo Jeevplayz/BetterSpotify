@@ -10,13 +10,10 @@ import { useStateFromStores } from "@webpack/common";
 import { SpotifyStore } from "./SpotifyStore";
 import { settings } from "./settings";
 
-// renders nothing (not even an empty div) when there's no active playback,
-// so we don't leave a gap above the account panel
 function PlayerWrapper() {
     const track = useStateFromStores([SpotifyStore], () => SpotifyStore.track);
     const device = useStateFromStores([SpotifyStore], () => SpotifyStore.device);
 
-    // Hide player completely when nothing playing
     if (!track || !device?.is_active) return null;
 
     return (
@@ -34,8 +31,7 @@ export default definePlugin({
     settings,
 
     patches: [
-        // Wrap the account panel (identified by its "userTag / occluded" props)
-        // so our player renders above it via PanelWrapper.
+        // Render above Discord's account panel.
         {
             find: /userTag:\w+,occluded:/,
             replacement: {
@@ -44,10 +40,7 @@ export default definePlugin({
             }
         },
 
-        // Give the internal Spotify API module a `post` method (it only ships
-        // `get` by default) and mark it so SpotifyStore can find it via
-        // findByPropsLazy("vcSpotifyMarker"). Also disable Discord's own
-        // "202 Accepted" short-circuit so our POST requests await a real result.
+        // Add POST support for Spotify requests and return the actual API response.
         {
             find: ".PLAYER_DEVICES",
             replacement: [
@@ -62,9 +55,7 @@ export default definePlugin({
             ]
         },
 
-        // The player state event Discord dispatches doesn't include shuffle
-        // state or the raw repeat mode, and filters out the current track's
-        // own artist from search results. Patch both back in.
+        // Restore shuffle/repeat state and keep the current artist in search results.
         {
             find: 'repeat:"off"!==',
             replacement: [

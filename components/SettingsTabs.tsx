@@ -67,7 +67,7 @@ export function SettingsTabs() {
     const values = settings.use([
         "spotifyClientId", "useSpotifyUris", "previousButtonRestartsTrack", "showSeekBar", "autoplayFallback",
         "showLyricsPreview", "lyricsPreviewFontSize", "lyricsPreviewLineCount", "lyricsTextColor", "lyricsGlowColor", "menuAccentColor",
-        "fontFamily", "fontSize", "albumSize", "accentColor", "backgroundColor"
+        "fontFamily", "fontSize", "albumSize", "menuIconSize", "accentColor", "backgroundColor"
     ]);
     const [tab, setTab] = useState<Tab>("general");
     const set = (key: keyof typeof values, value: unknown) => { (settings.store as any)[key] = value; };
@@ -106,6 +106,7 @@ export function SettingsTabs() {
                     </SettingsSection>
                     <SliderOption id="fontSize" name="Title Font Size" description="Base font size in pixels for the song title." value={values.fontSize} markers={[11, 12, 13, 14, 15, 16, 17, 18]} unit="px" onChange={value => set("fontSize", value)} />
                     <SliderOption id="albumSize" name="Album Art Size" description="Album art size in pixels." value={values.albumSize} markers={Array.from({ length: 31 }, (_, i) => i + 20)} unit="px" onChange={value => set("albumSize", value)} />
+                    <SliderOption id="menuIconSize" name="Spotify Menu Icon Size" description="Size of the shuffle, previous, play/pause, next, and repeat icons in the Spotify menu. Each step changes the size by 1px." value={values.menuIconSize} markers={Array.from({ length: 15 }, (_, i) => i + 14)} unit="px" onChange={value => set("menuIconSize", value)} />
                     <BaseText className={cl("note")} size="sm">Icon appearance follows the selected Discord theme.</BaseText>
                 </>}
             </div>

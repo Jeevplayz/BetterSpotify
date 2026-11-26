@@ -219,6 +219,15 @@ export const settings = definePluginSettings({
         hidden: true
     },
 
+    menuIconSize: {
+        type: OptionType.SLIDER,
+        description: "Size of the shuffle, playback, and repeat icons in the Spotify menu (14–28px, adjustable in 1px steps).",
+        markers: Array.from({ length: 15 }, (_, i) => i + 14),
+        default: 18,
+        stickToMarkers: true,
+        hidden: true
+    },
+
     accentColor: {
         type: OptionType.STRING,
         description: "Accent color used for the mini-player seek bar. Leave blank to use Discord's accent color.",

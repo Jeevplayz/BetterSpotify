@@ -15,9 +15,9 @@
 
   /* control sizing — smaller cluster so the time always fits */
   --vc-spotify-control-size: 18px;      /* prev / next hit area */
-  --vc-spotify-icon-size: 11px;         /* prev / next glyph */
+  --vc-spotify-icon-size: 16px;         /* prev / next glyph */
   --vc-spotify-play-size: 20px;         /* play / pause hit area */
-  --vc-spotify-play-icon-size: 13px;    /* play / pause glyph */
+  --vc-spotify-play-icon-size: 16px;    /* play / pause glyph */
 
   display: flex;
   flex-direction: column;
@@ -427,8 +427,7 @@
 }
 
 .vc-spotify-play svg {
-  /* Follow the same white-in-dark / black-in-light rule as the rest of the
-     player's text and icons, instead of a fixed accent color. */
+  /* Keep the play icon theme-colored. */
   fill: currentColor;
 }
 
@@ -437,9 +436,9 @@
   #vc-spotify-player {
     padding: 6px 4px;
     --vc-spotify-control-size: 17px;
-    --vc-spotify-icon-size: 10px;
+    --vc-spotify-icon-size: 16px;
     --vc-spotify-play-size: 19px;
-    --vc-spotify-play-icon-size: 12px;
+    --vc-spotify-play-icon-size: 16px;
   }
 }
 
@@ -464,10 +463,7 @@
   font-family: var(--font-primary, inherit);
 }
 
-/* Adaptive text color: Discord's own text tokens don't give reliable contrast
-   against every theme/background, so we define our own fg colors and flip them
-   off the theme-* class Discord puts on <html>. Everything in this file reads
-   from these two variables instead of Discord's tokens. */
+/* Set contrasting foreground colors for Discord's light and dark themes. */
 :root:not(.theme-light) #vc-spotify-player,
 :root:not(.theme-light) .vc-spotify-menu-modal {
   --vc-spotify-fg: #ffffff;
@@ -1732,9 +1728,10 @@
   color: var(--vc-spotify-fg);
 }
 
-.vc-spotify-device-button .vc-spotify-button-icon {
-  width: 15px;
-  height: 15px;
+.vc-spotify-menu-player .vc-spotify-device-button .vc-spotify-button-icon,
+.vc-spotify-menu-player .vc-spotify-menu-player-volume-btn .vc-spotify-button-icon {
+  width: var(--vc-spotify-menu-icon-size, 18px);
+  height: var(--vc-spotify-menu-icon-size, 18px);
 }
 
 
@@ -1747,11 +1744,6 @@
 
 .vc-spotify-menu-player-volume-btn:hover {
   color: var(--vc-spotify-fg);
-}
-
-.vc-spotify-menu-player-volume-btn .vc-spotify-button-icon {
-  width: 13px;
-  height: 13px;
 }
 
 .vc-spotify-menu-player-volume-slider-wrap {
@@ -1781,8 +1773,13 @@
 }
 
 .vc-spotify-menu-player-mode-btn .vc-spotify-button-icon {
-  width: 18px;
-  height: 18px;
+  width: var(--vc-spotify-menu-icon-size, 18px);
+  height: var(--vc-spotify-menu-icon-size, 18px);
+}
+
+.vc-spotify-menu-player .vc-spotify-menu-player-controls .vc-spotify-button-icon {
+  width: var(--vc-spotify-menu-icon-size, 18px);
+  height: var(--vc-spotify-menu-icon-size, 18px);
 }
 
 .vc-spotify-menu-player-mode-btn.is-active {

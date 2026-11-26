@@ -262,7 +262,6 @@ export function fetchLyrics(track: LookupTrack): Promise<LyricsResult> {
     ]);
     const cached = lyricsCache.get(key);
     if (cached && cached.expiresAt > Date.now()) {
-        // Map insertion order doubles as a small LRU so recently reused tracks stay warm.
         lyricsCache.delete(key);
         lyricsCache.set(key, cached);
         return cached.promise;

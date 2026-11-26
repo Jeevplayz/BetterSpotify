@@ -68,11 +68,7 @@ export function Player() {
         "--vc-spotify-lyrics-font-size": `${lyricsPreviewFontSize}px`,
         "--vc-spotify-lyrics-text-color": lyricsTextColor || "var(--vc-spotify-fg)",
         "--vc-spotify-lyrics-active-color": lyricsGlowColor || "var(--brand-experiment, var(--vc-spotify-fg))"
-        // Text/icon color is intentionally NOT set here. It's left to
-        // spotifyStyles.css, which derives --vc-spotify-text /
-        // --vc-spotify-secondary-text from --vc-spotify-fg / -fg-muted
-        // (black on light themes, white on dark themes). Setting it here
-        // as an inline style would always win over that CSS rule.
+        // Text and icon colors come from CSS to follow the Discord theme.
     } as React.CSSProperties;
 
     return (
