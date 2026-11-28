@@ -8,7 +8,7 @@ import { classes } from "@utils/misc";
 import { ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { React, TextInput, useState } from "@webpack/common";
 
-import { SimplePlaylist, SpotifyProfile, SpotifyStore } from "../../SpotifyStore";
+import { SimplePlaylist, SpotifyArtist, SpotifyProfile, SpotifyStore } from "../../SpotifyStore";
 import { useAsyncResource, useSpotifyConnection } from "./hooks";
 import { LibraryTab } from "./LibraryTab";
 import { LyricsTab } from "./LyricsTab";
@@ -18,6 +18,7 @@ import { PlaylistDetail } from "./PlaylistDetail";
 import { pickImage } from "./rows";
 import { SearchTab } from "./SearchTab";
 import { ArtistsTab } from "./ArtistsTab";
+import { ArtistDetail } from "./ArtistDetail";
 
 export function openSpotifyMenu() {
     openModal(props => <SpotifyMenuModal {...props} />);
@@ -109,15 +110,18 @@ function SpotifyMenuModal({ transitionState, onClose }: ModalProps) {
 
     // When set, the detail view replaces the tab content until the user goes back.
     const [openPlaylist, setOpenPlaylist] = useState<SimplePlaylist | null>(null);
+    const [openArtist, setOpenArtist] = useState<SpotifyArtist | null>(null);
 
     const selectTab = (id: TabId) => {
         setOpenPlaylist(null);
+        setOpenArtist(null);
         setTab(id);
     };
 
     const disconnect = async () => {
         await conn.disconnect();
         setOpenPlaylist(null);
+        setOpenArtist(null);
         setTab("library");
     };
 
@@ -165,11 +169,13 @@ function SpotifyMenuModal({ transitionState, onClose }: ModalProps) {
 
                             {openPlaylist ? (
                                 <PlaylistDetail playlist={openPlaylist} onBack={() => setOpenPlaylist(null)} />
+                            ) : openArtist ? (
+                                <ArtistDetail artist={openArtist} onBack={() => setOpenArtist(null)} />
                             ) : (
                                 <>
                                     {tab === "library" && <LibraryTab onOpenPlaylist={setOpenPlaylist} />}
-                                    {tab === "artists" && <ArtistsTab />}
-                                    {tab === "search" && <SearchTab onOpenPlaylist={setOpenPlaylist} />}
+                                    {tab === "artists" && <ArtistsTab onOpenArtist={setOpenArtist} />}
+                                    {tab === "search" && <SearchTab onOpenPlaylist={setOpenPlaylist} onOpenArtist={setOpenArtist} />}
                                     {tab === "lyrics" && <LyricsTab />}
                                 </>
                             )}

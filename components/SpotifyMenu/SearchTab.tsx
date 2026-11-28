@@ -80,7 +80,7 @@ function useSpotifySearch() {
     return { query, setQuery, results, loading, searched, error, search };
 }
 
-export function SearchTab({ onOpenPlaylist }: { onOpenPlaylist: (playlist: SimplePlaylist) => void; }) {
+export function SearchTab({ onOpenPlaylist, onOpenArtist }: { onOpenPlaylist: (playlist: SimplePlaylist) => void; onOpenArtist: (artist: SpotifyArtist) => void; }) {
     const s = useSpotifySearch();
     const recentlyPlayed = useStateFromStores([SpotifyStore], () => SpotifyStore.recentlyPlayed);
     const isEmpty = s.results.tracks.length === 0 && s.results.playlists.length === 0 && s.results.artists.length === 0;
@@ -146,7 +146,7 @@ export function SearchTab({ onOpenPlaylist }: { onOpenPlaylist: (playlist: Simpl
                 {!s.loading && s.results.artists.length > 0 && (
                     <>
                         <div className="vc-spotify-menu-section-title">Artists</div>
-                        <ArtistGrid artists={s.results.artists} horizontal />
+                        <ArtistGrid artists={s.results.artists} horizontal onOpenArtist={onOpenArtist} />
                     </>
                 )}
 

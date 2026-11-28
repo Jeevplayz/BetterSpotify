@@ -199,7 +199,7 @@ export function PlaylistGrid({ playlists, onOpen, horizontal = false }: { playli
 }
 
 /** Artist tile, with a Spotify follow toggle on the right side of its image and name. */
-export function ArtistCard({ artist, onFollowChange }: { artist: SpotifyArtist & { isFollowed?: boolean; }; onFollowChange?: (artist: SpotifyArtist, followed: boolean) => void; }) {
+export function ArtistCard({ artist, onFollowChange, onOpenArtist }: { artist: SpotifyArtist & { isFollowed?: boolean; }; onFollowChange?: (artist: SpotifyArtist, followed: boolean) => void; onOpenArtist?: (artist: SpotifyArtist) => void; }) {
     const [busy, setBusy] = React.useState(false);
     const [followed, setFollowed] = React.useState(Boolean(artist.isFollowed));
 
@@ -226,7 +226,7 @@ export function ArtistCard({ artist, onFollowChange }: { artist: SpotifyArtist &
         }
     };
 
-    const openArtist = () => SpotifyStore.openExternal(`/artist/${artist.id}`);
+    const openArtist = () => onOpenArtist ? onOpenArtist(artist) : SpotifyStore.openExternal(`/artist/${artist.id}`);
     const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.target !== event.currentTarget) return;
         if (event.key === "Enter" || event.key === " ") {
@@ -242,7 +242,7 @@ export function ArtistCard({ artist, onFollowChange }: { artist: SpotifyArtist &
             tabIndex={0}
             onClick={openArtist}
             onKeyDown={handleCardKeyDown}
-            aria-label={`Open ${artist.name} on Spotify`}
+            aria-label={onOpenArtist ? `View ${artist.name} details` : `Open ${artist.name} on Spotify`}
         >
             <ArtworkImage
                 images={artist.images}
@@ -268,10 +268,11 @@ export function ArtistCard({ artist, onFollowChange }: { artist: SpotifyArtist &
     );
 }
 
-export function ArtistGrid({ artists, horizontal = false, onFollowChange }: {
+export function ArtistGrid({ artists, horizontal = false, onFollowChange, onOpenArtist }: {
     artists: (SpotifyArtist & { isFollowed?: boolean; })[];
     horizontal?: boolean;
     onFollowChange?: (artist: SpotifyArtist, followed: boolean) => void;
+    onOpenArtist?: (artist: SpotifyArtist) => void;
 }) {
     const gridRef = React.useRef<HTMLDivElement>(null);
     React.useEffect(() => {
@@ -302,7 +303,7 @@ export function ArtistGrid({ artists, horizontal = false, onFollowChange }: {
             ref={gridRef}
             className={classes("vc-spotify-artist-grid", horizontal && "is-horizontal")}
         >
-            {artists.map(artist => <ArtistCard key={artist.id} artist={artist} onFollowChange={onFollowChange} />)}
+            {artists.map(artist => <ArtistCard key={artist.id} artist={artist} onFollowChange={onFollowChange} onOpenArtist={onOpenArtist} />)}
         </div>
     );
 }

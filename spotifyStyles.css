@@ -857,6 +857,43 @@
   background: var(--background-modifier-hover);
 }
 
+.vc-spotify-artist-album-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 68px;
+  padding: 8px 9px;
+  border: 1px solid color-mix(in srgb, var(--text-normal) 5.5%, transparent);
+  border-radius: 11px;
+  color: var(--vc-spotify-fg);
+  background: var(--background-secondary-alt);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.vc-spotify-artist-album-row:hover {
+  border-color: color-mix(in srgb, var(--text-normal) 8%, transparent);
+  background: var(--background-modifier-hover);
+}
+
+.vc-spotify-album-detail-header {
+  margin-top: 0;
+}
+
+.vc-spotify-artist-album-info {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.vc-spotify-artist-album-open {
+  color: var(--vc-spotify-fg-muted);
+  font-size: 11px;
+}
+
 .vc-spotify-search-result-art,
 .vc-spotify-search-result-art-placeholder {
   width: 50px;

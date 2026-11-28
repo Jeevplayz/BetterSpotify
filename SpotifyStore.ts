@@ -55,6 +55,15 @@ export interface SpotifyArtist {
     followers?: { total: number; };
 }
 
+export interface SpotifyArtistAlbum {
+    id: string;
+    name: string;
+    uri: string;
+    album_type: string;
+    release_date?: string;
+    images: { url: string; height?: number; width?: number; }[];
+}
+
 export interface SimplePlaylist {
     id: string;
     name: string;
@@ -326,6 +335,51 @@ export const SpotifyStore = proxyLazyWebpack(() => {
 
         async setArtistFollowed(artist: SpotifyArtist, followed: boolean) {
             await this._webApi(followed ? "PUT" : "DELETE", "/me/library", { uris: [artist.uri] });
+        }
+
+        async getArtistAlbums(artistId: string, max = 100): Promise<SpotifyArtistAlbum[]> {
+            const albums: SpotifyArtistAlbum[] = [];
+            let offset = 0;
+            while (albums.length < max) {
+                const page = await this._webApi("GET", `/artists/${artistId}/albums`, undefined, {
+                    limit: "50",
+                    offset: String(offset),
+                    include_groups: "album,single,compilation"
+                });
+                const items: SpotifyArtistAlbum[] = (page?.items ?? []).filter(Boolean);
+                albums.push(...items);
+                if (!page?.next || items.length === 0) break;
+                offset += items.length;
+            }
+
+            const seen = new Set<string>();
+            return albums.filter(album => {
+                if (seen.has(album.id)) return false;
+                seen.add(album.id);
+                return true;
+            }).slice(0, max);
+        }
+
+        async getAlbumTracks(album: SpotifyArtistAlbum): Promise<SearchTrack[]> {
+            const tracks: SearchTrack[] = [];
+            let offset = 0;
+            while (true) {
+                const page = await this._webApi("GET", `/albums/${album.id}/tracks`, undefined, {
+                    limit: "50",
+                    offset: String(offset)
+                });
+                const items = (page?.items ?? []).filter((track: any) => track?.uri && track.type === "track");
+                tracks.push(...items.map((track: any): SearchTrack => ({
+                    id: track.id ?? track.uri,
+                    name: track.name,
+                    uri: track.uri,
+                    artists: track.artists ?? [],
+                    album: { id: album.id, name: album.name, images: album.images }
+                })));
+                if (!page?.next || items.length === 0) break;
+                offset += items.length;
+            }
+            return tracks;
         }
 
         /** All playlists in the user's library (own, followed and collaborative), paginated. */

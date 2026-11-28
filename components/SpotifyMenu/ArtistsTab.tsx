@@ -9,7 +9,7 @@ import { SpotifyArtist, SpotifyStore } from "../../SpotifyStore";
 import { useAsyncResource } from "./hooks";
 import { ArtistGrid, LoadingMessage, StatusMessage } from "./rows";
 
-export function ArtistsTab() {
+export function ArtistsTab({ onOpenArtist }: { onOpenArtist: (artist: SpotifyArtist) => void; }) {
     const [filter, setFilter] = useState("");
     const [unfollowedIds, setUnfollowedIds] = useState<Set<string>>(() => new Set());
     const artists = useAsyncResource<SpotifyArtist[]>(
@@ -48,6 +48,7 @@ export function ArtistsTab() {
                 {!artists.loading && visible.length > 0 && (
                     <ArtistGrid
                         artists={visible.map(artist => ({ ...artist, isFollowed: true }))}
+                        onOpenArtist={onOpenArtist}
                         onFollowChange={(artist, followed) => {
                             if (!followed) setUnfollowedIds(current => new Set(current).add(artist.id));
                         }}
