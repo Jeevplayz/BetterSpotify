@@ -878,6 +878,28 @@
   background: var(--background-modifier-hover);
 }
 
+.vc-spotify-artist-album-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+}
+
+.vc-spotify-artist-album-play {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--white-500, #fff);
+  background: var(--vc-spotify-menu-accent, var(--brand-experiment, #5865f2));
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vc-spotify-artist-album-play:hover {
+  background: color-mix(in srgb, var(--vc-spotify-menu-accent, var(--brand-experiment, #5865f2)) 84%, var(--background-floating));
+}
+
 .vc-spotify-album-detail-header {
   margin-top: 0;
 }

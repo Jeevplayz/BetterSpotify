@@ -4,6 +4,7 @@
  */
 
 import { SearchTrack, SpotifyArtist, SpotifyArtistAlbum, SpotifyStore } from "../../SpotifyStore";
+import { runWithToast } from "../../lib/asyncAction";
 import { useAsyncResource } from "./hooks";
 import { ArtworkImage, LoadingMessage, StatusMessage, TrackRow } from "./rows";
 import { useState } from "@webpack/common";
@@ -45,6 +46,11 @@ export function ArtistDetail({ artist, onBack }: { artist: SpotifyArtist; onBack
                             <div className="vc-spotify-detail-name" title={selectedAlbum.name}>{selectedAlbum.name}</div>
                             <div className="vc-spotify-detail-meta">{selectedAlbum.album_type}{selectedAlbum.release_date ? ` · ${selectedAlbum.release_date.slice(0, 4)}` : ""}</div>
                         </div>
+                        <button type="button" className="vc-spotify-detail-play" onClick={() => runWithToast(
+                            async () => { await SpotifyStore.playContext(selectedAlbum.uri); },
+                            { success: `Playing ${selectedAlbum.name}`, failure: "Failed to play album" },
+                            "Failed to play album:"
+                        )}>▶ Play</button>
                     </div>
                     <div className="vc-spotify-search-results-list">
                         {tracks.loading && <LoadingMessage label="Loading tracks..." />}
@@ -60,14 +66,32 @@ export function ArtistDetail({ artist, onBack }: { artist: SpotifyArtist; onBack
                 {albums.error && <div className="vc-spotify-search-error">{albums.error}</div>}
                 {!albums.loading && !albums.error && albums.data.length === 0 && <StatusMessage>No albums found.</StatusMessage>}
                 {!albums.loading && albums.data.map(album => (
-                    <button key={album.id} type="button" className="vc-spotify-artist-album-row" onClick={() => setSelectedAlbum(album)}>
+                    <div key={album.id} className="vc-spotify-artist-album-row" role="button" tabIndex={0}
+                        onClick={() => setSelectedAlbum(album)}
+                        onKeyDown={event => {
+                            if (event.target !== event.currentTarget) return;
+                            if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                setSelectedAlbum(album);
+                            }
+                        }}>
                         <ArtworkImage images={album.images} className="vc-spotify-search-result-art" placeholderClassName="vc-spotify-search-result-art-placeholder" placeholder="♫" />
                         <span className="vc-spotify-artist-album-info">
                             <span className="vc-spotify-search-result-title">{album.name}</span>
                             <span className="vc-spotify-search-result-artists">{album.album_type}{album.release_date ? ` · ${album.release_date.slice(0, 4)}` : ""}</span>
                         </span>
-                        <span className="vc-spotify-artist-album-open">View tracks</span>
-                    </button>
+                        <span className="vc-spotify-artist-album-actions">
+                            <button type="button" className="vc-spotify-artist-album-play" onClick={event => {
+                                event.stopPropagation();
+                                void runWithToast(
+                                    async () => { await SpotifyStore.playContext(album.uri); },
+                                    { success: `Playing ${album.name}`, failure: "Failed to play album" },
+                                    "Failed to play album:"
+                                );
+                            }}>▶ Play</button>
+                            <span className="vc-spotify-artist-album-open">View tracks</span>
+                        </span>
+                    </div>
                 ))}
             </div>}
         </>
